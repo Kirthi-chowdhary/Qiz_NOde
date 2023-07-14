@@ -5,8 +5,17 @@ const bodyParser = require("body-parser")
 app.use(cors())
 const port = 3000; // Choose a port number for your server
 
+const authRoute = require('./src/Routes/authRoutes');
+const scoreRoute = require('./src/Routes/scoreRoutes')
+
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
+
+// For Login and registration
+app.use('/', authRoute)
+
+//For Getting score
+app.use('/', scoreRoute)
 
 const mysql = require('mysql2/promise')
 
@@ -28,66 +37,12 @@ const pool = mysql.createPool({
         console.error('Failed to connect to database:', err)
       })
 
-      //Registration
-      app.post('/api/register', async (req, res) => {
-       try{
-        // Extract the registration data from the request body
-        const { name, email, password } = req.body
-        const type = 'user'
-        // Inserting the data into the table
-        await pool.query(`
-        INSERT INTO registered (name,  email, password, type) VALUES (?, ?, ?,?)        
-        `, [name,  email,  password, type])
-    
-        console.log('New user created successfully')
-        //Sending response to the user
-        res.status(200).json({success: true, message: 'registeration sucessfull'})
-       }catch(error){
-        console.error('An error occurred during registration:',error)
-        res.status(500).json({ success: false, error: 'Registration failed' })
-       }
-      })
-
-
-
-      //Login Authentication
-      app.post('/api/authentication', async (req, res) =>{
-        try{
-            // Extract the login data from the request body
-            const{username, password}= req.body
-            //getting data from the registered table
-            const [rows] = await pool.query(`SELECT * FROM registered WHERE email = ? AND password = ?`,
-            [username, password])
-
-            const type= rows[0].type
-            
-            let email=username
-
-            //If user present
-            if (rows.length > 0) {              
-                const { name } = rows[0]
-                
-                let user=name
-                
-                res.status(200).json({success: true, user:name, email:username, type: type, message: 'login sucessfull'})
-
-              } else {
-                // User is not authenticated, display error message
-                res.status(500).json({ success: false, error: 'login failed' })
-              }
-        }catch(error){
-            console.error(error)
-        }
-      })
-
+      
 
       //Adding Question
       app.post('/api/addQuestion', async (req, res) => {
         try{
           const {question, choices,questionType} = req.body
-          console.log(question)
-          console.log(choices)
-          console.log('Question Type:', questionType)
 
           const qusetionInsertion = await pool.query('INSERT into questions (questions, type) VALUES (?, ?)',[question, questionType])
           console.log('Inserted into questions table succesfully')
@@ -115,28 +70,22 @@ const pool = mysql.createPool({
       // Sending quiz
       app.get('/api/sendingquiz', async (req, res) => {
         try {
-          // Retriving random 10 questions from the table
-          const randQuestions = await pool.query(
-            'SELECT * from questions ORDER BY RAND() LIMIT 10'
-            )
-
-            const questionIDs = randQuestions[0].map( (row)=>{
-              return row.questionID
-
-            })
-
-          // Retrieve options based on the questionIDs
-          const optionsQuery = `
-            SELECT questionID, optionID, choice
-            FROM options
-            WHERE questionID IN (${questionIDs.join(',')})
+          // Retriving random 10 questions along with their choices from the table
+ 
+          const questionQuery = `
+          SELECT sub.questionID, sub.questions, o.optionID, o.choice
+          FROM (
+            SELECT q.questionID, q.questions
+            FROM questions q
+            ORDER BY RAND()
+            LIMIT 10
+          ) sub
+          JOIN options o ON sub.questionID = o.questionID
+          ORDER BY sub.questionID ASC
             `
-            const options = await pool.query(optionsQuery)
-   
-            if (randQuestions[0].length > 0 && options[0].length > 0)  {
-              res.status(200).send({ questions: randQuestions[0], options: options[0], questionIDs: questionIDs })
-            } else {
-              res.status(200).send([]); // Empty array if no results found
+            const questions = await pool.query(questionQuery)
+            if (questions[0].length > 0 )  {
+              res.status(200).send({ questions: questions[0] })
             }
           } catch (error) {
             console.error('An error occurred while fetching quiz:', error)
@@ -148,14 +97,18 @@ const pool = mysql.createPool({
 
       // submiting quiz
       app.post('/api/submitquiz', async(req, res)=>{
-        const{selectedOptions,questionIDs,user}=req.body
+        const{selectedOptions,user}=req.body
+
+        const questionIDs = selectedOptions.map((option) => option.question)
+        console.log(questionIDs)
 
         const answersQuery = `
           SELECT questionID,optionID,answer
           FROM options
-          WHERE questionID IN (${questionIDs.join(',')})
+          WHERE questionID IN (${questionIDs.join(',')}) and answer = 1
           `
         const [answers] = await pool.query(answersQuery)
+        console.log(user)
 
         let score=0
 
@@ -175,52 +128,54 @@ const pool = mysql.createPool({
         }
         });    
 
+        console.log(score,'score')
+
+
         // geting data from score table
-        const scoreQuery =await pool.query('SELECT * from score where email= ?', [user.user.email])
-
-        //checking if any data is being fetched or not 
-        if(scoreQuery[0].length >0){
+        if(user.user.email){
+          const scoreQuery =await pool.query('SELECT * from score where email= ?', [user.user.email])
+          //checking if any data is being fetched or not
+          if(scoreQuery[0].length >0){
       
-          const update= await pool.query('UPDATE score set score= ?',[score])
-          console.log('Updation succesfull')
-        }else{
-
-          const insert= await pool.query('INSERT into score (email, score) VALUES (?, ?)',[user.user.email, score])
-          console.log('Insertion succesfull')
+            const update= await pool.query('UPDATE score set score= ? where email =?',[score,user.user.email])
+            console.log('Updation succesfull')
+          }else{
+  
+            const insert= await pool.query('INSERT into score (email, score) VALUES (?, ?)',[user.user.email, score])
+            console.log('Insertion succesfull')
+          }
+        }
+        if(user.user.user.email){
+          const scoreQuery =await pool.query('SELECT * from score where email= ?', [user.user.user.email])
+          //checking if any data is being fetched or not
+          if(scoreQuery[0].length >0){
+      
+            const update= await pool.query('UPDATE score set score= ? where email =?',[score,user.user.user.email])
+            console.log('Updation succesfull')
+          }else{
+  
+            const insert= await pool.query('INSERT into score (email, score) VALUES (?, ?)',[user.user.user.email, score])
+            console.log('Insertion succesfull')
+          }
+        }
+        else{
+          const scoreQuery =await pool.query('SELECT * from score where email= ?', [user.user.user.user.email])
+          //checking if any data is being fetched or not
+          if(scoreQuery[0].length >0){
+      
+            const update= await pool.query('UPDATE score set score= ? where email =?',[score,user.user.user.user.email])
+            console.log('Updation succesfull')
+          }else{
+  
+            const insert= await pool.query('INSERT into score (email, score) VALUES (?, ?)',[user.user.user.user.email, score])
+            console.log('Insertion succesfull')
+          }
         }
 
         res.status(200).json({ message: 'Quiz data received successfully.', score: score })
   
       })
 
-
-
-      // To get the score
-      app.get('/api/getScore', async(req, res) =>{
-
-        const user = req.query.user
-
-        let scores
-        if (user.user.email)
-       { 
-         scores =await pool.query('SELECT score from score where email= ?', [user.user.email])
-       }
-       else{
-          scores =await pool.query('SELECT score from score where email= ?', [user.user.user.email])
-       }
-
-        // getting the score
-        const score= scores[0][0].score
-
-        //sending the score
-        if (scores.length > 0 && score !== undefined) {
-    
-          res.status(200).json({ message: 'Your score', score: score });
-        } else {
-          console.log('No score found');
-          res.status(200).json({ message: 'No score found' });
-        }
-      })
       
 
       app.listen(port, () => {
