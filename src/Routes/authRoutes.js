@@ -3,9 +3,8 @@ const auth = express.Router();
 
 const authController = require('../Controller/authContorller');
 
-auth.post('/api/register', authController.registerUser );
+module.exports = function (app,routes){
+    app.route('/api/register').post(authController.registerUser)
+    app.route('/api/authentication').post(authController.login)
+}
 
-auth.post('/api/authentication', authController.login );
-
-
-module.exports = auth;

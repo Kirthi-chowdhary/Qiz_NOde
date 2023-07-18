@@ -3,6 +3,6 @@ const addQues = express.Router();
 
 const addQuestionController= require('../Controller/addQuestionController')
 
-addQues.post('/api/addQuestion', addQuestionController.addQuestion)
-
-module.exports = addQues
+module.exports = function (app,routes){
+    app.route('/api/addQuestion').post(addQuestionController.addQuestion)
+}

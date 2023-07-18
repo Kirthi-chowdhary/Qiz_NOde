@@ -3,6 +3,6 @@ const score = express.Router();
 
 const scoreController = require('../Controller/scoreController');
 
-score.get('/api/getScore', scoreController.score );
-
-module.exports = score;
+module.exports = function (app,routes){
+    app.route('/api/getScore').get(scoreController.score)
+}
