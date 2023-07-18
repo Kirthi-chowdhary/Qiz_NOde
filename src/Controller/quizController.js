@@ -8,7 +8,6 @@ exports.Quiz =[
     async(req,res) =>{
         try{
             const questions = await Quiz.setQuiz()
-            console.log(questions)
             res.status(200).send({ questions: questions })
         }catch(error){
             console.error('An error occurred while getting quiz:', err);
