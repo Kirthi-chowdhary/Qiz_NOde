@@ -7,7 +7,9 @@ In this app I ahve used MVC architecture and devide the code respectively and th
   - Utill
 
  In Controller we call the respective functions we require
+
  In Routes we declare the routes or API aand which route should use which Controller
+ 
  In Utill all the logic part is done
 
  In the main code i.e quix.js we just give the routes
