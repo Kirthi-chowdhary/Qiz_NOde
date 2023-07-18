@@ -1,10 +1,10 @@
 # This is a code for quiz app
 
 In this app I ahve used MVC architecture and devide the code respectively and they are strored in the following folders
-    - src
-        - Controller
-        - Routes
-        - Utill
+- Item 2
+  - Subitem 1
+  - Subitem 2
+  - Utill
 
  In Controller we call the respective functions we require
  In Routes we declare the routes or API aand which route should use which Controller
