@@ -19,6 +19,13 @@ pool.getConnection()
     console.error('Failed to connect to database:', err)
   })
 
+  /**
+* To add a new user to the database
+* @param {string} selectedOptions This object contains data like name sent from the  request 
+* @param {string} user This object contains data like email sent from the reqest
+* @param {string} password This object contains data like password sent from the request
+* @return {string} sends werher the user is sucesdsfully registerd or not   
+*/
   exports.newUser = async (name, email, password) => {
     const query = 'INSERT INTO registered (name,  email, password, type) VALUES (?, ?, ?, ?)';
     try {

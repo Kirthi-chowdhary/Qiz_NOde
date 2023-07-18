@@ -19,6 +19,12 @@ pool.getConnection()
     console.error('Failed to connect to database:', err)
   })
 
+  /**
+* To authenticate a user
+* @param {JSON} username This object contains the data like username sent from the  request 
+* @param {JSON} password This object contains the data like password sent from the request
+* @return {JSON} sends the user email and type of user   
+*/
   exports.login = async (username, password) =>{
     const query = `SELECT * FROM registered WHERE email = ? AND password = ?`
     try{
@@ -30,7 +36,7 @@ pool.getConnection()
          if (result.length > 0) {              
             const { name } = result[0]  
             const user=name
-            return {user, email, type}
+            return { email, type}
           } 
     } catch(error){
         console.error(error)

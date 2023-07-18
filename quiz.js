@@ -4,7 +4,7 @@ const routes = express.Router();
 const cors = require('cors')
 const bodyParser = require("body-parser")
 app.use(cors())
-const port = 3000; // Choose a port number for your server
+require('dotenv').config()
 
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
@@ -21,6 +21,6 @@ require('./src/Routes/quizRoutes')(app,routes)
 //For Getting score
 require('./src/Routes/scoreRoutes')(app,routes)
 
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`)
+app.listen(process.env.PORT, () => {
+  console.log(`Server is running on port ${process.env.PORT}`)
 })

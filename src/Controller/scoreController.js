@@ -2,9 +2,15 @@ const bodyParser = require('body-parser');
 
 const Score =require('../Utill/scoreQuery')
 
-exports.score = [
-    bodyParser.json(),
+/**
+* To get the score of the user
+* @param {JSON} req This object contains the data sent from the  request end and is used for getting the score of the user
+* @param {JSON} res This object contains the return result
+* @return {JSON} res sends the response to the user his score from the database  
+*/
+exports.score = 
     async(req,res) => {
+        bodyParser.json()
         const user = req.query.user
 
         try{
@@ -15,4 +21,3 @@ exports.score = [
         res.status(500).json({ success: false, error: 'Registration failed' });
         }
     }
-]

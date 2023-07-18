@@ -19,6 +19,12 @@ pool.getConnection()
     console.error('Failed to connect to database:', err)
   })
 
+  /**
+* To grade the quiz
+* @param {JSON} selectedOptions This object contains the data like the options he selected for the quiz sent from the  request 
+* @param {JSON} user This object contains the data like who is attending the quiz
+* @return {JSON} sends the score   
+*/
   exports.answers = async(selectedOptions,user)=>{
     const questionIDs = selectedOptions.map((option) => option.question)
         const answersQuery = `

@@ -19,6 +19,11 @@ pool.getConnection()
     console.error('Failed to connect to database:', err)
   })
 
+    /**
+* To get the grade of the user
+* @param {JSON} user This object contains the data like who is attending the quiz
+* @return {number} sends the score   
+*/
   exports.score = async (User) =>{
     const query = `SELECT score from score where email= ?`
 

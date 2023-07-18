@@ -19,6 +19,10 @@ pool.getConnection()
     console.error('Failed to connect to database:', err)
   })
 
+    /**
+* To send the quiz to the user
+* @return {JSON} sends a quiz for the user to answer   
+*/
   exports.setQuiz = async () =>{
     try{
         const questionQuery = `

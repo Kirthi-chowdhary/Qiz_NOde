@@ -3,9 +3,15 @@ const bodyParser = require('body-parser');
 
 const AddQuestion = require('../Utill/addQusetionQuery')
 
-exports.addQuestion = [
-    bodyParser.json(),
+/**
+* To add new question to the database
+* @param {JSON} req This object contains the data like the new question we need to add along with it's choices and the correct answer and the type of question is sent from the  request end and is used for getting it to the database
+* @param {JSON} res This object contains the return result
+* @return {JSON} res sends the response to the user wether the question along with the choices and answer is added to the database or not  
+*/
+exports.addQuestion = 
     async(req,res) =>{
+        bodyParser.json()
         const {question, choices,questionType} = req.body
         try{
             await AddQuestion.addQuestion(question, choices,questionType)
@@ -15,4 +21,3 @@ exports.addQuestion = [
         res.status(500).json({ success: false, error: 'Adding new question failed' });
         }
     }
-]
