@@ -12,18 +12,14 @@ app.use(express.json())
 //For adding new Questions
 require('./src/Routes/addQusetionRoutes')(app,routes)
 
-
 // For Login and registration
 require('./src/Routes/authRoutes')(app,routes)
-
 
 // For setting and submiting Quiz
 require('./src/Routes/quizRoutes')(app,routes)
 
-
 //For Getting score
 require('./src/Routes/scoreRoutes')(app,routes)
-
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`)
