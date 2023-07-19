@@ -33,7 +33,7 @@ pool.getConnection()
 
         let email=username
          //If user present
-         if (result.length > 0) {              
+         if (result.length > 0) {      
             const { name } = result[0]  
             const user=name
             return { email, type}

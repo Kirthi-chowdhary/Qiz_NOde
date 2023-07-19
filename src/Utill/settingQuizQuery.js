@@ -1,6 +1,8 @@
 const mysql = require('mysql2/promise')
+const NodeCache = require( "node-cache" )
+const myCache = new NodeCache()
 
-require('dotenv').config();
+require('dotenv').config()
 
 //Connect to database
 const pool = mysql.createPool({
@@ -36,10 +38,23 @@ pool.getConnection()
         JOIN options o ON sub.questionID = o.questionID
         ORDER BY sub.questionID ASC
           `
-          const questions = await pool.query(questionQuery)
-          if (questions[0].length > 0 )  {
-            return questions[0]
+          
+          
+          var cacheData =myCache.get('questions')
+          if(cacheData){
+            console.log('From Cache')
+            return cacheData
           }
+          else{
+            const questions = await pool.query(questionQuery)
+            myCache.set('questions', questions[0],900000)
+            console.log('From Database')
+            if (questions[0].length > 0 )  {
+              return questions[0]
+            }
+            
+          }
+          
     }catch(error){
         console.error('An error occurred while fetching quiz:', error)
         return error
