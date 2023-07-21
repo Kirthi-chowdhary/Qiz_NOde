@@ -47,7 +47,7 @@ pool.getConnection()
           }
           else{
             const questions = await pool.query(questionQuery)
-            myCache.set('questions', questions[0],900000)
+            myCache.set('questions', questions[0],900)
             console.log('From Database')
             if (questions[0].length > 0 )  {
               return questions[0]

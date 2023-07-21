@@ -12,9 +12,10 @@ const e = require('cors');
 * @param {JSON} res This object contains the return result
 * @return {JSON} res sends the response to the user that weather a new ia added to the database or not 
 */
-exports.registerUser = [
-    bodyParser.json(),
+exports.registerUser = 
+    
     async(req, res) => {
+        bodyParser.json()
         const {name, email, password} = req.body;
 
         
@@ -26,7 +27,7 @@ exports.registerUser = [
         res.status(500).json({ success: false, error: 'Registration failed' });
       }
     }
-]
+
 
 /**
 * To check wether the user is registered or not
@@ -44,7 +45,7 @@ exports.login =
             res.status(200).json({success: true,  email:email, type: type, message: 'login sucessfull'})
         } catch (err){
             console.error('An error occurred during login:', err);
-        res.status(500).json({ success: false, error: 'Registration failed' });
+        res.status(401).json({ success: false, error: 'Invalid Email ID or Password!' });
         }
     }
 
